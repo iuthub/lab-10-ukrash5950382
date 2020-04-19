@@ -6,6 +6,8 @@ use App\Like;
 use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
+use Auth;
+use Gate;
 
 class PostController extends Controller
 {
@@ -43,6 +45,9 @@ class PostController extends Controller
 
     public function getAdminEdit($id)
     {
+        if (Gate::denies('update-post', $post)) {
+            return redirect()->back();
+        }
         $post = Post::find($id);
         $tags = Tag::all();
         return view('admin.edit', ['post' => $post, 'postId' => $id, 'tags' => $tags]);
@@ -66,6 +71,9 @@ class PostController extends Controller
 
     public function postAdminUpdate(Request $request)
     {
+        if (Gate::denies('update-post', $post)) {
+            return redirect()->back();
+        }
         $this->validate($request, [
             'title' => 'required|min:5',
             'content' => 'required|min:10'
@@ -82,6 +90,9 @@ class PostController extends Controller
 
     public function getAdminDelete($id)
     {
+        if (Gate::denies('update-post', $post)) {
+            return redirect()->back();
+        }
         $post = Post::find($id);
         $post->likes()->delete();
         $post->tags()->detach();
